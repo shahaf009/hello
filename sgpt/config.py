@@ -3,8 +3,9 @@ from getpass import getpass
 from pathlib import Path
 from tempfile import gettempdir
 from typing import Any
-
+from rich.console import Console
 from click import UsageError
+
 
 CONFIG_FOLDER = os.path.expanduser("~/.config")
 SHELL_GPT_CONFIG_FOLDER = Path(CONFIG_FOLDER) / "shell_gpt"
@@ -79,5 +80,13 @@ class Config(dict):  # type: ignore
             raise UsageError(f"Missing config key: {key}")
         return value
 
+    def init_print(self) -> Console:
+        color_system = (
+            "truecolor" if self.get("FORCE_COLOR") == "true" else Console().color_system
+        )
+        p = Console(color_system=color_system)  # type: ignore
+        return p
+
 
 cfg = Config(SHELL_GPT_CONFIG_PATH, **DEFAULT_CONFIG)
+print_ = cfg.init_print().print
